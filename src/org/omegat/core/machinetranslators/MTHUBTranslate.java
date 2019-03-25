@@ -37,6 +37,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -330,7 +331,7 @@ public class MTHUBTranslate extends BaseTranslate {
                 if (response.isSuccess()) {
                     List<String> codes = new ArrayList<String>();
                     for (List<MTHUBLanguageResponseDataLanguages> dl : response.getData().get(0).getLanguages()) {
-                        codes.add(dl.get(0).getCode().toUpperCase());
+                        codes.add(dl.get(0).getCode().toUpperCase(Locale.ENGLISH));
                     }
                     return codes;
                 } else {
@@ -458,7 +459,11 @@ public class MTHUBTranslate extends BaseTranslate {
      * @return A normalise code for MT-HUB languages (ISO 639-1 Code)
      */
     private String normaliseCode(Language language) {
-        String fullCode = language.getLanguage().toUpperCase();
-        return getAvailableLanguageCodes().contains(fullCode) ? fullCode : language.getLanguageCode();
+        String fullCode = language.getLanguage().toUpperCase(Locale.ENGLISH);
+        if (getAvailableLanguageCodes().contains(fullCode)) {
+            return fullCode;
+        } else {
+            return language.getLanguageCode().toUpperCase(Locale.ENGLISH);
+        }
     }
 }
