@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.IOUtils;
 import org.omegat.gui.exttrans.MTConfigDialog;
 import org.omegat.util.Language;
 import org.omegat.util.OStrings;
@@ -327,8 +326,7 @@ public class MTHUBTranslate extends BaseTranslate {
 
             try (InputStream in = (statusCode >= 200 && statusCode < 400) ? conn.getInputStream()
                     : conn.getErrorStream()) {
-                MTHUBLanguageResponse response = OM.readValue(IOUtils.toString(in, StandardCharsets.UTF_8),
-                        MTHUBLanguageResponse.class);
+                MTHUBLanguageResponse response = OM.readValue(in, MTHUBLanguageResponse.class);
                 if (response.isSuccess()) {
                     List<String> codes = new ArrayList<String>();
                     for (List<MTHUBLanguageResponseDataLanguages> dl : response.getData().get(0).getLanguages()) {
@@ -427,8 +425,7 @@ public class MTHUBTranslate extends BaseTranslate {
 
                 try (InputStream in = (statusCode >= 200 && statusCode < 400) ? conn.getInputStream()
                         : conn.getErrorStream()) {
-                    MTHUBTranslateResponse response = OM.readValue(IOUtils.toString(in, StandardCharsets.UTF_8),
-                            MTHUBTranslateResponse.class);
+                    MTHUBTranslateResponse response = OM.readValue(in, MTHUBTranslateResponse.class);
                     if (response.isSuccess()) {
                         String translation = response.getData().get(0).getSegments().get(0).get(0).getTranslation();
                         putToCache(sLang, tLang, text, translation);
