@@ -219,8 +219,8 @@ ext {
     linuxJRE = fileTree(dir: assetDir, include: 'jre-*-linux-i586.tar.gz')
     linux64JRE = fileTree(dir: assetDir, include: 'jre-*-linux-x64.tar.gz')
 
-    windowsJRE = file("${assetDir}/jre")
-    windowsJRE64 = file("${assetDir}/jre-64")
+    windowsJRE = fileTree(dir: assetDir, include: 'jre-*-windows-i586.tar.gz')
+    windowsJRE64 = fileTree(dir: assetDir, include: 'jre-*-windows-x64.tar.gz')
 }
 
 task genDocIndex(type: Copy) {
@@ -544,8 +544,14 @@ ext.makeWinTask = { args ->
             include 'OmegaT.exe', 'OmegaT.l4J.ini'
         }
         if (args.jrePath) {
-            from (args.jrePath) {
-                into 'jre'
+            from (tarTree(args.jrePath.singleFile)) {
+                includeEmptyDirs = false
+                eachFile {
+                    def segs = it.relativePath.segments.collect {
+                        it =~ /jre.*/ ? 'jre' : it
+                    }
+                    it.relativePath = new RelativePath(!it.directory, segs as String[])
+                }
             }
         }
         destinationDir = file("${buildDir}/innosetup/${args.name}")
@@ -553,7 +559,7 @@ ext.makeWinTask = { args ->
         def installerBasename = "OmegaT_${fullVersion}_${args.suffix}"
         outputs.file "${distsDir}/${installerBasename}.exe"
         onlyIf {
-            (!args.jrePath || args.jrePath.directory) && haveInnoSetup()
+            (!args.jrePath || !args.jrePath.empty) && haveInnoSetup()
         }
         doLast {
             project.copy {
